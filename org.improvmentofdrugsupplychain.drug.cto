@@ -1,0 +1,144 @@
+
+namespace org.improvementdrugsupplychain.drug
+
+
+enum ProductType {
+  o Cold
+  o Hot
+  
+}                                     
+enum DrugStatus {
+  o produced//Drug have been produced
+  o IN_TRANSIT//Drug is transport
+  o selled  //Drug have been selled
+}
+enum CompassDirection {
+  o N
+  o S
+  o E
+  o W
+}
+abstract participant Business identified by Id {
+ o String Id
+ o String Full_name 
+ o Double accountBalance
+ o Double credit
+}
+
+
+abstract participant People identified by Id {
+  o String Id
+  o String Full_name
+  
+}
+abstract transaction ShipmentTransaction {
+    --> Drug drug
+}
+abstract participant IoTDevice identified by deviceId {
+  o String deviceId
+}
+
+participant Producer extends Business {  
+ }                                            
+participant Patient extends People {
+}
+participant Shipper extends Business {
+}
+participant Pharmacy extends Business {
+}
+participant TemperatureSensor extends IoTDevice {            
+}
+participant GpsSensor extends IoTDevice {
+}
+
+asset Drug identified by drugId {
+  o String drugId
+  o String drugname
+  o ProductType type
+  o DrugStatus status
+  o Long druguid         
+  o Integer TTL         
+  --> Producer owner
+  --> ContractFW contractFW
+  --> ContractF contractF
+  o TemperatureReading[] temperatureReadings optional
+  o GpsReading[] gpsReadings optional
+  o Drug_Product drug_Product optional
+  o Drug_Selled drug_Selled optional
+}
+asset ContractFW identified by contractFWId {
+  o String contractFWId
+  --> Producer producer                  
+  --> Shipper shipper              
+  o DateTime arrivalDateTime
+  o Double shippingFee
+  o Double minTemperature                  
+  o Double maxTemperature
+  o Double minPenaltyFactor
+  o Double maxPenaltyFactor1
+  
+}
+asset ContractF identified by contractFId {
+  o String contractFId
+  --> Producer producer                         
+  o Double threshold   
+}
+
+transaction Drug_Distributors extends ShipmentTransaction {     
+  o DateTime receivedDateTime
+
+}
+
+transaction Drug_Product extends ShipmentTransaction {            
+  o DateTime producedDateTime
+
+
+}
+
+transaction Drug_Selled extends ShipmentTransaction {
+}
+
+transaction GpsReading extends ShipmentTransaction {
+  o String readingTime
+  o String latitude
+  o CompassDirection latitudeDir
+  o String longitude
+  o CompassDirection longitudeDir
+}
+transaction TemperatureReading extends ShipmentTransaction {
+  o Double centigrade
+}
+
+transaction SetupDemo {
+ }
+
+event Drug_Received_Notification {
+  o String message
+  --> Drug drug
+}
+event TemperatureThreshold {
+  o String message
+  o Double temperature
+  --> Drug drug
+}
+
+
+
+event Drug_Produced_Notification {
+  o String message
+}
+
+event Drug_Selled_Notification {
+  o String message
+  --> Drug drug
+}
+
+event Drug_Transit_Notification {
+  o String message
+  --> Drug drug
+}
+
+
+ event RemoveNotification {
+     --> Drug drug
+ }
